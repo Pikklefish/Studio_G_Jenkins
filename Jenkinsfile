@@ -33,9 +33,9 @@ node {
     
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
-            sh script: '''
+            sh script:"""
             curl -u ${NEXUS_CREDENTIALS} -o ${SAVE_FILE_NAME} ${NEXUS_LINK}
-            '''
+            """
         }
     }
     stage('Upload file(s) to server') {
