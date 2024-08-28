@@ -1,3 +1,5 @@
+
+
 def NEXUS_LINK = "http://192.168.15.150:8081/repository/createg-snapshot/com/studiog/varodrt/admin/maven-metadata.xml"
 
 def SERVER_LIST = [
@@ -5,7 +7,7 @@ def SERVER_LIST = [
     ['192.168.15.170', '/home/peter']
 ]
 
-node {
+node{
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: """
