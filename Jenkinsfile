@@ -1,15 +1,41 @@
+// node {
+//     Nexus_REPO_LINK = "http://192.168.15.150:8081/repository/createg-snapshot/com/doub/drt3/driver-api/1.2.05-SNAPSHOT/driver-api-1.2.05-20240819.142925-1.war"
+//     FILE_NAME = "test2.war"
+//     stage('Pull the file off Nexus') {
+//         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
+//             sh script: '''
+//             curl -u ${NEXUS_CREDENTIALS} -o ${FILE_NAME}  ${NEXUS_REPO_LINK}
+//             '''
+//         }
+//     }
+//     stage('Upload file(s) to server') {
+//         withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
+//             sh script: '''
+//             # Extract username and password
+//             USERNAME=$(echo $FTP_CREDENTIALS | cut -d: -f1)
+//             PASSWORD=$(echo $FTP_CREDENTIALS | cut -d: -f2)
+
+//             # Use sshpass with sftp to connect and perform actions
+//             sshpass -p "$PASSWORD" sftp -oBatchMode=no $USERNAME@192.168.15.170 <<EOF
+//             cd /home/peter/deploy
+//             put ${FILE_NAME}
+//             EOF
+//             '''
+//         }
+//     }
+// }
+
+
 node {
-    Nexus_REPO_LINK = "http://192.168.15.150:8081/repository/createg-snapshot/com/doub/drt3/driver-api/1.2.05-SNAPSHOT/driver-api-1.2.05-20240819.142925-1.war"
-    FILE_NAME = "test2.war"
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: '''
-            curl -u ${NEXUS_CREDENTIALS} -o ${FILE_NAME}  ${NEXUS_REPO_LINK}
+            curl -u ${NEXUS_CREDENTIALS} -o maven-metadata.xml "http://192.168.15.150:8081/repository/createg-snapshot/com/studiog/varodrt/admin/maven-metadata.xml"
             '''
         }
     }
-    stage('Upload file(s) to server') {
-        withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
+stage('Upload file(s) to server') {
+            withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
             sh script: '''
             # Extract username and password
             USERNAME=$(echo $FTP_CREDENTIALS | cut -d: -f1)
@@ -18,15 +44,13 @@ node {
             # Use sshpass with sftp to connect and perform actions
             sshpass -p "$PASSWORD" sftp -oBatchMode=no $USERNAME@192.168.15.170 <<EOF
             cd /home/peter/deploy
-            put ${FILE_NAME}
+            put maven-metadata.xml
             EOF
             '''
         }
+
     }
 }
-
-
-
 
 // pipeline {
 //     agent { 
