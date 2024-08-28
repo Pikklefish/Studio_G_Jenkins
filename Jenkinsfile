@@ -26,7 +26,7 @@
 // }
 
 
-node {
+node('docker-agent-alpine') {
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: '''
@@ -34,7 +34,7 @@ node {
             '''
         }
     }
-stage('Upload file(s) to server') {
+    stage('Upload file(s) to server') {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
             sh script: '''
             # Extract username and password
