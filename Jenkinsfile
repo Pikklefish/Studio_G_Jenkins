@@ -42,7 +42,7 @@ node {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
             sh script: """
             # Use sshpass with sftp to connect and perform actions
-            sshpass -p "\$(echo \$FTP_CREDENTIALS | cut -d: -f2)" sftp -oBatchMode=no \$(echo \$FTP_CREDENTIALS | cut -d: -f1)@\${SFTP_SERVER} <<EOF
+            sshpass -p "\$( \$FTP_CREDENTIALS | cut -d: -f2)" sftp -oBatchMode=no \$( \$FTP_CREDENTIALS | cut -d: -f1)@192.168.15.170 <<EOF
             cd /home/peter/deploy
             put ${SAVE_FILE_NAME}
             EOF
