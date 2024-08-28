@@ -27,7 +27,7 @@
 
 def NEXUS_LINK = "http://192.168.15.150:8081/repository/createg-snapshot/com/studiog/varodrt/admin/maven-metadata.xml"
 def SAVE_FILE_NAME = "test_4.xml"
-
+def SFTP_SERVERS = ['192.168.15.170'] 
 
 node {
     
@@ -42,7 +42,7 @@ node {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
             sh script: """
             # Use sshpass with sftp to connect and perform actions
-            sshpass -p "\$(echo \$FTP_CREDENTIALS | cut -d: -f2)" sftp -oBatchMode=no \$(echo \$FTP_CREDENTIALS | cut -d: -f1)@192.168.15.170 <<EOF
+            sshpass -p "\$(echo \$FTP_CREDENTIALS | cut -d: -f2)" sftp -oBatchMode=no \$(echo \$FTP_CREDENTIALS | cut -d: -f1)@\${SFTP_SERVER} <<EOF
             cd /home/peter/deploy
             put ${SAVE_FILE_NAME}
             EOF
