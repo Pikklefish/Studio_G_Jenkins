@@ -40,11 +40,12 @@ node {
     }
     stage('Upload file(s) to server') {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
-            sh script: """
+
             // Extract the credentials in Groovy
             def ftpUser = "${FTP_CREDENTIALS.split(':')[0]}"
             def ftpPass = "${FTP_CREDENTIALS.split(':')[1]}"
-
+            
+            sh script: """
             // Upload the file using sshpass with sftp
             sshpass -p ${ftpPass} sftp -oBatchMode=no ${ftpUser}@192.168.15.170 <<EOF
             cd /home/peter/deploy
