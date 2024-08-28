@@ -30,7 +30,7 @@ node {
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: '''
-            curl -u ${NEXUS_CREDENTIALS} -o maven-metadata.xml "http://192.168.15.150:8081/repository/createg-snapshot/com/studiog/varodrt/admin/maven-metadata.xml"
+            curl -u ${NEXUS_CREDENTIALS} -o test_3.xml "http://192.168.15.150:8081/repository/createg-snapshot/com/studiog/varodrt/admin/maven-metadata.xml"
             '''
         }
     }
@@ -44,7 +44,7 @@ stage('Upload file(s) to server') {
             # Use sshpass with sftp to connect and perform actions
             sshpass -p "$PASSWORD" sftp -oBatchMode=no $USERNAME@192.168.15.170 <<EOF
             cd /home/peter/deploy
-            put maven-metadata.xml
+            put test_3.xml
             EOF
             '''
         }
