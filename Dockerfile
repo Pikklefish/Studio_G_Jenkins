@@ -1,5 +1,7 @@
 FROM jenkins/jenkins:2.462.1-jdk17
 USER root
+RUN apt-get update && \
+    apt-get install -y sshpass
 RUN apt-get update && apt-get install -y lftp
 RUN apt-get update && apt-get install -y lsb-release python3-pip
 RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
