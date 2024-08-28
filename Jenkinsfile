@@ -46,7 +46,6 @@ node {
             def ftpPass = "${FTP_CREDENTIALS.split(':')[1]}"
 
             // Upload the file using sshpass with sftp
-            sh script: """
             sshpass -p ${ftpPass} sftp -oBatchMode=no ${ftpUser}@192.168.15.170 <<EOF
             cd /home/peter/deploy
             put ${SAVE_FILE_NAME}
