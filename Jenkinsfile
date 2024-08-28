@@ -27,6 +27,7 @@
 
 
 node {
+    
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: '''
@@ -37,12 +38,9 @@ node {
     stage('Upload file(s) to server') {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
             sh script: '''
-            # Extract username and password
-            USERNAME=$(echo $FTP_CREDENTIALS | cut -d: -f1)
-            PASSWORD=$(echo $FTP_CREDENTIALS | cut -d: -f2)
 
             # Use sshpass with sftp to connect and perform actions
-            sshpass -p "$PASSWORD" sftp -oBatchMode=no $USERNAME@192.168.15.170 <<EOF
+            sshpass -p "$(echo $FTP_CREDENTIALS | cut -d: -f2)" sftp -oBatchMode=no $(echo $FTP_CREDENTIALS | cut -d: -f1)@192.168.15.170 <<EOF
             cd /home/peter/deploy
             put test_3.xml
             EOF
