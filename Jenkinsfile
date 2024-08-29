@@ -11,7 +11,7 @@ node{
     stage('Pull the file off Nexus') {
         withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: """
-            curl -u \$NEXUS_CREDENTIALS -o rider.war ${NEXUS_LINK}
+            curl -u \$NEXUS_CREDENTIALS -o TEST_8932.war ${NEXUS_LINK}
             """
         }
     }
@@ -27,7 +27,7 @@ node{
                 sh script: """
                 sshpass -p '${ftpPass}' sftp -oBatchMode=no ${ftpUser}@${server[0]} <<EOF
                 cd ${server[1]}
-                put rider.war
+                put TEST_8932.war
                 EOF
                 """
             }
