@@ -9,7 +9,7 @@ def SERVER_LIST = [
 
 node{
     stage('Pull the file off Nexus') {
-        withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
+        withCredentials([usernameColonPassword(credentialsId: 'ee15f893-1728-450b-9556-2647a12f856d', variable: 'NEXUS_CREDENTIALS')]) {
             sh script: """
             curl -u \$NEXUS_CREDENTIALS -o TEST_8932.war ${NEXUS_LINK}
             """
@@ -17,7 +17,7 @@ node{
     }
 
     stage('Upload file(s) to server') {
-        withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
+        withCredentials([usernameColonPassword(credentialsId: '0ada22b4-bceb-47b2-91aa-c4d225dc1fe6', variable: 'FTP_CREDENTIALS')]) {
 
             // Extract the credentials in Groovy
             def ftpUser = "${FTP_CREDENTIALS.split(':')[0]}"
