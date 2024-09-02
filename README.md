@@ -74,7 +74,6 @@ docker run --name jenkins-blueocean --restart=on-failure --detach \
   --publish 8932:8080 --publish 50322:50000 \
   --volume jenkins-data:/var/jenkins_home \
   --volume jenkins-docker-certs:/certs/client:ro \
-  --volume /home/varo/geoje-dev-key.pem:/var/jenkins_home/key.pem:ro \
   myjenkins-blueocean:2.462.1-1
 ```
 You can see that the host is docker:2376 but since we are adding the plugins on top of the official Jenkins image we are 
