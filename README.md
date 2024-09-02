@@ -131,19 +131,19 @@ Follow this step
 
 
 # Building the Pipeline
-The purpose of this pipeline is to bring files from Sonatype Nexus repository to an internal SFTP server.
+The purpose of this pipeline is to bring files from the Sonatype Nexus repository to an internal SFTP server.
 
-First the credentials for Nexus and SFTP server needs to be set up. Nexus is accessible using `username:password` and 
+First, the credentials for Nexus and SFTP server needs to be set up. Nexus is accessible using `username:password` and 
 the SFTP server is accessible using a `key.pem` file. This documentation will go over how to set each of those up.
 
 ## With `Username:Password`
-To set up the `username:password` navigate to `Mange Jenkins > Credentials > (select global) > Add Credentials `. Select 
+To set up the `username:password` navigate to `Manage Jenkins > Credentials > (select global) > Add Credentials `. Select 
 kind as `Username with password`, scope as `Global(Jenkins, nodes, ...)`, insert username/password and create. Back at the
-`Credentials` page you will be able to see Credentials ID for each credential, can be useful later on.
+`Credentials` page you will be able to see Credentials ID for each credential, which can be useful later on.
 
 Now create a pipeline with a name that you want from the main page. In the job, on the left column select `Pipeline Syntax`.
 For `Sample step > withCredentials: Bind Credentials to variables`, select a variable name (ie `Variable > NEXUS_Credentials`)
-and select the credentials you want to bind your variable to. Generate pipeline script, copy that and paste it into your pipeline.
+and select the credentials you want to bind your variable to. Generate a pipeline script, copy that and paste it into your pipeline.
 It should look something like this:
 ```
 stage('Pull the file off Nexus') {
@@ -152,7 +152,7 @@ stage('Pull the file off Nexus') {
         }
     }
 ```
-As a side note I will also include how ot use username and password with an SFTP server. The username and password were extracted.
+As a side note, I will also include how to use username and password with an SFTP server. The username and password were extracted.
 ```
  stage('Upload file(s) to server') {
             withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
@@ -211,9 +211,9 @@ You will then be able to use the key to gain SFTP access. Below is the sample co
 ```
 
 
-For the final pipeline I added in features to satisfy the spec required. For example, the variables like the `SAVE_FILE_NAME` 
+For the final pipeline, I added features to satisfy the spec required. For example, the variables like the `SAVE_FILE_NAME` 
 have been moved outside the node to be used as a global variable across stages. The second stage also not only just uploads it 
-to a SFTP server but also saves the old file as `{file_name}_backup` in case we need to perform a rollback.
+to an SFTP server but also saves the old file as `{file_name}_backup` in case we need to perform a rollback.
 ```
 /////////FINAL VERSION
 def NEXUS_LINK = "{NEXUS_LINK}"  // path to file on NEXUS repository
@@ -235,7 +235,7 @@ node {
     stage('Backup and Upload file(s) to SFTP') {
         SERVER_LIST.each { server ->
             sh """
-            # Create backup filename to the original file name
+            # Create a backup filename to the original file name
             BACKUP_FILE_NAME="${SAVE_FILE_NAME}_backup"
 
             # Check if the file exists on the remote server, if it does, back it up
