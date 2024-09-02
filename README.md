@@ -249,3 +249,7 @@ node {
 }
 
 ```
+
+There are two different ways for you to tell Jenkins what to do. One method is to directly code it into the Jenkins UI, select
+`Pipeline Script`, one other method is to upload it to a remote repository and linking that repository to Jenkins, select `Pipeline Script from SCM`.
+The default name for Jenkins configuration file name is `Jenkinsfile`.
