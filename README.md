@@ -123,3 +123,121 @@ Follow this step
 
 
 # Building the Pipeline
+The purpose of this pipeline is to bring files from Sonatype Nexus repository to an internal SFTP server.
+
+First the credentials for Nexus and SFTP server needs to be set up. Nexus is accessible using `username:password` and 
+the SFTP server is accessible using a `key.pem` file. This documentation will go over how to set each of those up.
+
+## With `Username:Password`
+To set up the `username:password` navigate to `Mange Jenkins > Credentials > (select global) > Add Credentials `. Select 
+kind as `Username with password`, scope as `Global(Jenkins, nodes, ...)`, insert username/password and create. Back at the
+`Credentials` page you will be able to see Credentials ID for each credential, can be useful later on.
+
+Now create a pipeline with a name that you want from the main page. In the job, on the left column select `Pipeline Syntax`.
+For `Sample step > withCredentials: Bind Credentials to variables`, select a variable name (ie `Variable > NEXUS_Credentials`)
+and select the credentials you want to bind your variable to. Generate pipeline script, copy that and paste it into your pipeline.
+It should look something like this:
+```
+stage('Pull the file off Nexus') {
+        withCredentials([usernameColonPassword(credentialsId: '5771e4b4-a87b-4a7b-b536-2a68bdc8caa9', variable: 'NEXUS_CREDENTIALS')]) {
+           script ...
+        }
+    }
+```
+As a side note I will also include how ot use username and password with an SFTP server. The username and password were extracted.
+```
+ stage('Upload file(s) to server') {
+            withCredentials([usernameColonPassword(credentialsId: 'ba0bd89f-af69-40dc-af02-842b82fc02be', variable: 'FTP_CREDENTIALS')]) {
+
+            // Extract the credentials in Groovy
+            def ftpUser = "${FTP_CREDENTIALS.split(':')[0]}"
+            def ftpPass = "${FTP_CREDENTIALS.split(':')[1]}"
+
+            // Upload the file using sshpass with sftp
+            sh script: """
+            sshpass -p ${ftpPass} sftp -oBatchMode=no ${ftpUser}@192.168.15.170 <<EOF
+            cd /home/peter/deploy
+            put ${SAVE_FILE_NAME}
+            EOF
+            """
+        }
+
+    }
+```
+
+## With `key.pem` file
+To use `key.pem` to gain access you need to first load the `key.pem` file to either your local device (if you are working just on your computer)
+or to your company's remote server. You will then add that `key.pem` file to your Docker container as a volume when you are 
+running your Docker container. This is what needs to be added: ```--volume /home/varo/geoje-dev-key.pem:/var/jenkins_home/key.pem:ro \```
+```/home/varo/geoje-dev-key.pem``` is the location of the `key.pem` on my server and ```var/jenkins_home/key.pem:ro```
+is where I am mapping it to on Docker.
+
+Edited version of the Docker run command
+```
+docker run --name jenkins-blueocean --restart=on-failure --detach \
+  --network jenkins --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 \
+  --publish 8932:8080 --publish 50322:50000 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  --volume /home/varo/geoje-dev-key.pem:/var/jenkins_home/key.pem:ro \
+  myjenkins-blueocean:2.462.1-1
+```
+
+You will then be able to use the key to gain SFTP access. Below is the sample code using the key
+```
+    stage('Backup and Upload file(s) to server') {
+        SERVER_LIST.each { server ->
+            sh """
+            # Create backup filename by appending '_backup' to the original file name
+            BACKUP_FILE_NAME="${SAVE_FILE_NAME}_backup"
+
+            # Check if the file exists on the remote server, if it does, back it up
+            ssh -i /var/jenkins_home/key.pem -o StrictHostKeyChecking=no ${USERNAME}@${server[0]} "[ -f ${server[1]}/${SAVE_FILE_NAME} ] && cp -pf ${server[1]}/${SAVE_FILE_NAME} ${server[1]}/\${BACKUP_FILE_NAME} || echo 'No existing file to backup'"
+
+            # Upload the new WAR or JAR file to the server
+            scp -i /var/jenkins_home/key.pem -o StrictHostKeyChecking=no ${SAVE_FILE_NAME} ${USERNAME}@${server[0]}:${server[1]}
+            """
+        }
+    }
+```
+
+
+For the final pipeline I added in features to satisfy the spec required. For example, the variables like the `SAVE_FILE_NAME` 
+have been moved outside the node to be used as a global variable across stages. The second stage also not only just uploads it 
+to a SFTP server but also saves the old file as `{file_name}_backup` in case we need to perform a rollback.
+```
+/////////FINAL VERSION
+def NEXUS_LINK = "{NEXUS_LINK}"  // path to file on NEXUS repository
+def SAVE_FILE_NAME = "{FILE_NAME}"  // name to save file as
+def USERNAME = "{USER_ID}" // user variable inside the node
+def SERVER_LIST = [
+    ['{SFTP_SREVER}', '{DIRECTORY_PATH}']
+]
+
+node {
+    stage('Import from NEXUS') {
+        withCredentials([usernameColonPassword(credentialsId: 'ee15f893-1728-450b-9556-2647a12f856d', variable: 'NEXUS_CREDENTIALS')]) {
+            sh script: """
+            curl -u \$NEXUS_CREDENTIALS -o ${SAVE_FILE_NAME} ${NEXUS_LINK}
+            """
+        }
+    }
+
+    stage('Backup and Upload file(s) to SFTP') {
+        SERVER_LIST.each { server ->
+            sh """
+            # Create backup filename to the original file name
+            BACKUP_FILE_NAME="${SAVE_FILE_NAME}_backup"
+
+            # Check if the file exists on the remote server, if it does, back it up
+            ssh -i /var/jenkins_home/key.pem -o StrictHostKeyChecking=no ${USERNAME}@${server[0]} "[ -f ${server[1]}/${SAVE_FILE_NAME} ] && cp -pf ${server[1]}/${SAVE_FILE_NAME} ${server[1]}/\${BACKUP_FILE_NAME} || echo 'No existing file to backup'"
+
+            # Upload the new WAR or JAR file to the server
+            scp -i /var/jenkins_home/key.pem -o StrictHostKeyChecking=no ${SAVE_FILE_NAME} ${USERNAME}@${server[0]}:${server[1]}
+            """
+        }
+    }
+}
+
+```
