@@ -1,5 +1,13 @@
 # Jenkins CI/CD Deployment Documentation
-This project is part of a preliminary research and documentation for the use of engineers at Studio Galilei R&D Division (Create G)
+
+> [!NOTE]
+> This project is part of a preliminary research and documentation for the use of engineers at [**Studio Galilei**'s](https://www.studiog.kr/)
+> Research and development division (Create G).
+ 
+Last Modified (2024-09-02)
+
+
+![StudioG_Jenkins Flowchart](jenkinsFlowchart)
 
 ## Deployment on Linux Environment using Docker
 
